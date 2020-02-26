@@ -1,0 +1,53 @@
+---
+keepalived_user: "root"
+keepalived_group: "root"
+keepalived_pgrep_bin: "/usr/bin/pgrep"
+keepalived_pid_dir: "/run/keepalived"
+keepalived_pid_file: "{{ keepalived_pid_dir }}/keepalived.pid"
+keepalived_vrrp_pid_file: "{{ keepalived_pid_dir }}/keepalived_vrrp.pid"
+keepalived_checkers_pid_file: "{{ keepalived_pid_dir }}/keepalived_checkers.pid"
+keepalived_child_wait_time: 5
+keepalived_package_name: "keepalived"
+keepalived_package_version: ""
+keepalived_package_state: "present"
+keepalived_service_name: "keepalived"
+
+keepalived_conf_dir: "/etc/keepalived"
+keepalived_conf_file: "{{ keepalived_conf_dir }}/keepalived.conf"
+keepalived_systemd_dir: "/etc/systemd/system/keepalived.service.d"
+keepalived_systemd_file: "{{ keepalived_systemd_dir }}/custom.conf"
+
+keepalived_vrrp_version: 2
+
+keepalived_global_defs_vrrp_version: "{{ keepalived_vrrp_version }}"
+keepalived_global_defs_checker_no_swap: true
+keepalived_global_defs_vrrp_no_swap: true
+keepalived_global_defs_enable_script_security: true
+
+keepalived_services: []
+
+keepalived_vrrp_script_script: ""
+keepalived_vrrp_script_interval: 1
+keepalived_vrrp_script_timeout: 300
+keepalived_vrrp_script_rise: 5
+keepalived_vrrp_script_fall: 5
+keepalived_vrrp_script_user: "nobody"
+keepalived_vrrp_script_group: "nogroup"
+keepalived_vrrp_script_init_fail: true
+
+keepalived_vrrp_instance_state: "BACKUP"
+keepalived_vrrp_instance_version: "{{ keepalived_vrrp_version }}"
+keepalived_vrrp_instance_interface: ""
+keepalived_vrrp_instance_priority: ""
+keepalived_vrrp_instance_virtual_router_id: ""
+keepalived_vrrp_instance_advert_int: 1
+keepalived_vrrp_instance_mcast_src_ip: "{{ ansible_default_ipv4.address }}"
+keepalived_vrrp_instance_unicast_src_ip: "{{ ansible_default_ipv4.address }}"
+keepalived_vrrp_instance_nopreempt: true
+
+keepalived_vrrp_instance_authentication_auth_type: "AH"
+keepalived_vrrp_instance_authentication_auth_pass: ""
+
+keepalived_vrrp_instance_track_interface: ""
+keepalived_vrrp_instance_track_script: ""
+keepalived_vrrp_instance_virtual_ipaddress: ""

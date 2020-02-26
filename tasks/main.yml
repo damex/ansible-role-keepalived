@@ -1,0 +1,10 @@
+---
+- name: ensure keepalived
+  block:
+    - import_tasks: environment.yml
+    - import_tasks: package.yml
+    - import_tasks: directories.yml
+    - import_tasks: configuration.yml
+    - import_tasks: systemd.yml
+  tags:
+    - keepalived
