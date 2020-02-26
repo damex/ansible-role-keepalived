@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[Service]
+User={{ keepalived_user }}
+Group={{ keepalived_group }}
+RuntimeDirectory={{ keepalived_pid_dir | basename }}
+PIDFile=
+PIDFile={{ keepalived_pid_file }}
+Type=forking
+ExecStart=
+ExecStart=/usr/sbin/keepalived \
+  --log-detail \
+  --use-file={{ keepalived_conf_file }} \
+  --pid={{ keepalived_pid_file }} \
+  --vrrp_pid={{ keepalived_vrrp_pid_file }} \
+  --checkers_pid={{ keepalived_checkers_pid_file }}

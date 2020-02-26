@@ -1,0 +1,30 @@
+---
+- name: ensure systemd
+  block:
+    - name: ensure systemd custom file
+      template:
+        src: "systemd.service.j2"
+        dest: "{{ keepalived_systemd_file }}"
+        owner: "{{ keepalived_user }}"
+        group: "{{ keepalived_group }}"
+        mode: 0644
+      register: keepalived_systemd_file_state
+    - name: ensure systemd configuration is reloaded
+      systemd:
+        daemon-reload: true
+      when: keepalived_systemd_file_state.changed
+    - name: ensure keepalived service is enabled
+      systemd:
+        name: "{{ keepalived_service_name }}"
+        enabled: true
+    - name: ensure keepalived service is started
+      systemd:
+        name: "{{ keepalived_service_name }}"
+        state: "started"
+    - name: ensure keepalived service is restarted
+      systemd:
+        name: "{{ keepalived_service_name }}"
+        state: "restarted"
+      when: keepalived_conf_state.changed or
+        keepalived_systemd_file_state.changed
+  become: true

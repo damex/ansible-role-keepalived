@@ -1,0 +1,64 @@
+! {{ ansible_managed }}
+
+use_pid_dir {{ keepalived_pid_dir }}
+child_wait_time {{ keepalived_child_wait_time }}
+
+global_defs {
+  vrrp_version {{ keepalived_global_defs_vrrp_version }}
+  {{ 'checker_no_swap' if keepalived_global_defs_checker_no_swap }}
+  {{ 'vrrp_no_swap' if keepalived_global_defs_vrrp_no_swap }}
+  {{ 'enable_script_security' if keepalived_global_defs_enable_script_security }}
+  router_id {{ inventory_hostname }}
+}
+
+{% for keepalived_service in keepalived_services %}
+vrrp_script check_{{ keepalived_service.name }} {
+{% if keepalived_service.vrrp_script_script is defined %}
+  script "{{ keepalived_service.vrrp_script_script }}"
+{% else %}
+  script "{{ keepalived_pgrep_bin }} {{ keepalived_service.name }}"
+{% endif %}
+  interval {{ keepalived_service.vrrp_script_interval | default(keepalived_vrrp_script_interval) }}
+  timeout {{ keepalived_service.vrrp_script_timeout | default(keepalived_vrrp_script_timeout) }}
+  rise {{ keepalived_service.vrrp_script_rise | default(keepalived_vrrp_script_rise) }}
+  fall {{ keepalived_service.vrrp_script_fall | default(keepalived_vrrp_script_fall) }}
+  user {{ keepalived_service.vrrp_script_user | default(keepalived_vrrp_script_user) }} {{ keepalived_service.vrrp_script_group | default(keepalived_vrrp_script_group) }}
+  {{ 'init_fail' if keepalived_service.vrrp_script_init_fail | default(keepalived_vrrp_script_init_fail) }}
+}
+
+vrrp_instance {{ keepalived_service.name }} {
+  state {{ keepalived_service.vrrp_instance_state | default (keepalived_vrrp_instance_state) }}
+  version {{ keepalived_service.vrrp_instance_version | default (keepalived_vrrp_instance_version) }}
+  interface {{ ansible_default_ipv4.interface }}
+{% if keepalived_service.vrrp_instance_priority is defined %}
+  priority {{ keepalived_service.vrrp_instance_priority }}
+{% endif %}
+  {{ 'nopreempt' if keepalived_vrrp_instance_nopreempt }}
+  virtual_router_id {{ keepalived_service.vrrp_instance_virtual_router_id }}
+  advert_int {{ keepalived_service.vrrp_instance_advert_int | default(keepalived_vrrp_instance_advert_int) }}
+  mcast_src_ip {{ keepalived_service.vrrp_instance_mcast_src_ip | default(keepalived_vrrp_instance_mcast_src_ip) }}
+  unicast_src_ip {{ keepalived_service.vrrp_instance_unicast_src_ip | default(keepalived_vrrp_instance_unicast_src_ip) }}
+{% if keepalived_service.vrrp_instance_unicast_peers is defined %}
+  unicast_peer {
+{% for host in keepalived_service.vrrp_instance_unicast_peers %}
+{% if host != inventory_hostname %}
+    !{{ host }}
+    {{ host | ip }}
+{% endif %}
+{% endfor %}
+  }
+{% endif %}
+{% if keepalived_service.vrrp_instance_authentication_auth_pass is defined or keepalived_vrrp_instance_authentication_auth_pass | length %}
+  authentication {
+    auth_type {{ keepalived_service.vrrp_instance_authentication_auth_type | default(keepalived_vrrp_instance_authentication_auth_type) }}
+    auth_pass {{ keepalived_service.vrrp_instance_authentication_auth_pass | default(keepalived_vrrp_instance_authentication_auth_pass) }}
+  }
+{% endif %}
+  track_script {
+    check_{{ keepalived_service.name }}
+  }
+  virtual_ipaddress {
+    {{ keepalived_service.vrrp_instance_virtual_ipaddress | default(keepalived_vrrp_instance_virtual_ipaddress) }}/32 dev {{ ansible_default_ipv4.interface }} label {{ ansible_default_ipv4.interface }}:{{ keepalived_service.name }}
+  }
+}
+{% endfor %}

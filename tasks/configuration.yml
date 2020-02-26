@@ -1,0 +1,10 @@
+---
+- name: ensure keepalived configuration
+  template:
+    src: "keepalived.conf.j2"
+    dest: "{{ keepalived_conf_file }}"
+    owner: "{{ keepalived_user }}"
+    group: "{{ keepalived_group }}"
+    mode: 0644
+  register: keepalived_conf_state
+  become: true
